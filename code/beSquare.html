@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Frédéric Maguin">
+    <title>Be square...</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
+      body { font-family: 'Open Sans', sans-serif; }
+      input[type=text] { width: 40px; }
+      output { vertical-align: top; }
+      div {
+        float: left;
+        min-height: 100px;
+        text-align: center;
+      }
+      #divLeft {
+        text-align: right;
+        width: 40%;
+      }
+      #divCenter { width: 20%; }
+      #divRight {
+        text-align: left;
+        width: 40%;
+      }
+      #divRes { width: 100%; }
+    </style>
+  </head>
+  <body>
+    <form>
+      <div id="divLeft">
+        <label for="valueLeft">Left value</label>
+        <input type="text" id="valueLeft" name="valueLeft" required minlength="1" maxlength="4" value="71" onChange="refresh()">
+        <br>
+        <label for="squarePerLineLeft"># squares</label>
+        <input type="text" id="squarePerLineLeft" name="squarePerLineLeft" required minlength="1" maxlength="2" value="10" onChange="refresh()">
+        <br>
+        <label for="colorLeft">Color</label>
+        <input type="color" id="colorLeft" name="colorLeft" value="#000" onChange="refresh()">
+      </div>
+      <div id="divCenter">
+        <label for="squareSize">Square size</label><br>
+        <input type="range" id="squareSize" name="squareSize" required min="1" max="20" value="5" onChange="this.nextElementSibling.innerText = this.value; refresh()">
+        <output for="squareSize">5</output>
+      </div>
+      <div id="divRight">
+        <input type="text" id="valueRight" name="valueRight" required minlength="1" maxlength="4" value="5050" onChange="refresh()">
+        <label for="valueRight">Right value</label>
+        <br>
+        <input type="text" id="squarePerLineRight" name="squarePerLineRight" required minlength="1" maxlength="2" value="50" onChange="refresh()">
+        <label for="squarePerLineRight"># squares</label>
+        <br>
+        <input type="color" id="colorRight" name="colorRight" value="#00AADC" onChange="refresh()">
+        <label for="colorRight">Color</label>
+      </div>
+    </form>
+    <div id="divRes" title="Right click on the canvas in order to save it as an image.">
+      <canvas id="canvasLeft" width="110" height="1010" style="display: none;"></canvas>
+      <canvas id="canvasRight" width="510" height="1010" style="display: none;"></canvas>
+      <canvas id="canvasRes" width="620" height="1015">HTML5 canvas not supported.</canvas>
+    </div>
+
+    <script>
+// Draw squares on one side.
+function beSquare(canvasId, value, squarePerLine, color) {
+  var canvas = document.getElementById(canvasId);
+  var ctx = canvas.getContext("2d");
+  canvas.width = squarePerLine*(squareSize+squareSep) + squareSep;
+  canvas.height = Math.ceil(value/squarePerLine)*(squareSize+squareSep) + squareSep;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = color;
+  for (i=0; i<value; i++) {
+    var line = Math.floor(i/squarePerLine);
+    ctx.fillRect(((i-(line*squarePerLine))*(squareSize+squareSep)) + squareSep
+               , (line*(squareSize+squareSep)) + squareSep
+               , squareSize, squareSize);
+  }
+}
+
+// Update the visible canvas with both sides.
+function updateCanvas() {
+  var canvasLeft = document.getElementById("canvasLeft");
+  var canvasRight = document.getElementById("canvasRight");
+  var canvasRes = document.getElementById("canvasRes");
+  var ctxRes = canvasRes.getContext("2d");
+  canvasRes.width = canvasLeft.width + canvasRight.width;
+  canvasRes.height = Math.max(canvasLeft.height, canvasRight.height);
+  ctxRes.fillStyle = "#fff";
+  ctxRes.fillRect(0, 0, canvasRes.width, canvasRes.height);
+  ctxRes.drawImage(canvasLeft, 0, 0, canvasLeft.width, canvasLeft.height);
+  ctxRes.drawImage(canvasRight, canvasLeft.width, 0, canvasRight.width, canvasRight.height);
+}
+
+// Refresh the canvas.
+function refresh() {
+  squareSize = parseInt(document.getElementById("squareSize").value, 10);
+  beSquare("canvasLeft", parseInt(document.getElementById("valueLeft").value, 10)
+         , parseInt(document.getElementById("squarePerLineLeft").value, 10)
+         , document.getElementById("colorLeft").value);
+  beSquare("canvasRight", parseInt(document.getElementById("valueRight").value, 10)
+         , parseInt(document.getElementById("squarePerLineRight").value, 10)
+         , document.getElementById("colorRight").value);
+  updateCanvas();
+}
+
+var squareSize, squareSep = 5;
+refresh();
+    </script>
+  </body>
+</html>
